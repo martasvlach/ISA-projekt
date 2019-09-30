@@ -3,6 +3,6 @@ using namespace std;
 
 int main() 
 {
-    cout << "ISA klient test";
+    cout << "ISA client test";
     return 0;
 }
