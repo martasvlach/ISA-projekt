@@ -34,5 +34,5 @@
 .idea/
 
 # Binaries
-isaclient
-isaserver
+src/isaclient
+src/isaserver
