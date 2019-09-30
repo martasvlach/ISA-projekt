@@ -37,13 +37,22 @@ V prípadoch kedy sa posielajú dáta je použitý Content-Type:text/plain. Riad
 API je definované následovne:
 
 **GET /boards** - Vráti zoznam dostupných nástenok, jedna na riadok.
+
 **POST /boards/name** - Vytvorí novú prázdnu nástenku s názvom name.
+
 **DELETE /boards/name** - Zmaže nástenku name a všetok jej obsah.
+
 **GET /board/name** - Zobrazí obsah nástenky name.
+
 **POST /board/name** - Vloží nový príspevok do nástenky name. Príspevok je vložený na koniec zoznamu.
+
 **PUT /board/name/id** - Zmení obsah príspevku číslo id v nástenke name.
+
 **DELETE /board/name/id** - Zmaže príspevok číslo id z nástenky name.
-**GET**, **PUT** a **DELETE** vracajú pri úspechu **kód 200**, **POST 201**. Pokiaľ žiadaná nástenka alebo príspevok neexistujú, vracia sa kód 404. Pokiaľ je snaha vytvoriť nástenku s názvom ktorý už existuje, vracia sa **kód 409**. Pokiaľ **POST** alebo **PUT** nad príspevkom majú **Content-Length = 0**, vracia sa **kód 400.**
+
+**GET**, **PUT** a **DELETE** vracajú pri úspechu **kód 200**, **POST 201**. Pokiaľ žiadaná nástenka alebo príspevok neexistujú, vracia sa **kód 404**. Pokiaľ je snaha vytvoriť nástenku s názvom ktorý už existuje, vracia sa **kód 409**. 
+
+Pokiaľ **POST** alebo **PUT** nad príspevkom majú **Content-Length = 0**, vracia sa **kód 400.**
 
 Na všetky iné akcie reaguje server odpoveďou **404**.
 
