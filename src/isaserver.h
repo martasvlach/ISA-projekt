@@ -8,7 +8,6 @@
 #include <iostream>
 #include <string>
 #include <cstring>
-#include <stdlib.h>
 #include <sstream>
 #include <regex>
 
@@ -24,7 +23,7 @@ using namespace std;
 // Příliš mnoho argumentů
 #define TOO_MANY_ARGUMENTS 2
 
-// Nebyl zadán žádný arguments
+// Nebyl zadán žádný argument
 #define TOO_FEW_ARGUMENTS 3
 
 // Nebylo zadání číslo portu

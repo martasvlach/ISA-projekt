@@ -42,6 +42,8 @@ void Error(int errorCode)
             cerr << "Zadaný port není číslem v rozsahu <0;65535>" << endl;
             RETURN_CODE = PORT_BAD_RANGE;
             break;
+        default:
+            break;
     }
 }
 
@@ -56,14 +58,7 @@ bool IsLegitPortNum(char *pn)
         string::size_type st;
         LISTEN_PORT = stoi(portNum,&st);
 
-        if (LISTEN_PORT >= 0 && LISTEN_PORT <= 65535)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return LISTEN_PORT >= 0 && LISTEN_PORT <= 65535;
     }
     return false;
 }
