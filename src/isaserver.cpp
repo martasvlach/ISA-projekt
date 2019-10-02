@@ -12,10 +12,17 @@ using namespace std;
 void PrintHelp()
 {
     cout << "=============================================" << endl;
-    cout << "Příklad spuštění -- ./isaserver -p 5777" << endl;
-    cout << "Kde -p je povinný parametr který značí číslo portu na kterém má server očekávat spojení" << endl;
-    cout << "Toto číslo musí být validní číslo portu (<0;65535>)" << endl;
+    cout << "Spuštění -- ./isaserver -p <port>" << endl;
+    cout << " - <port> je číslo portu na kterém má server očekávat spojení" << endl;
+    cout << "          Toto číslo musí být validní číslo portu (z intervalu <0;65535>)" << endl;
+    cout << endl;
+    cout << "  == Příklad spuštění ==" << endl;
+    cout << "      ./isaserver -p 80" << endl;
+    cout << endl;
+    cout << "  == Autor ==" << endl;
+    cout << "      Martin Vlach [xvlach18@stud.fit.vutbr.cz]" << endl;
     cout << "=============================================" << endl;
+    exit(OK);
 }
 
 void Error(int errorCode)
@@ -23,97 +30,68 @@ void Error(int errorCode)
     switch (errorCode)
     {
         case TOO_FEW_ARGUMENTS:
-            cerr << "Nebyl zadán povinný uživatelský argument" << endl;
-            RETURN_CODE = TOO_FEW_ARGUMENTS;
-            break;
+            cerr << "Nebyl zadán žádný uživatelský argument" << endl;
+            exit(TOO_FEW_ARGUMENTS);
         case TOO_MANY_ARGUMENTS:
-            cerr << "Bylo zadáno příliš mnoho argumentů" << endl;
-            RETURN_CODE = TOO_MANY_ARGUMENTS;
-            break;
+            cerr << "Bylo zadáno příliš mnoho argumentů pro tuto jejich kombinaci" << endl;
+            exit(TOO_MANY_ARGUMENTS);
         case PORT_NUM_UNSPECIFIED:
             cerr << "Nebylo zadáno číslo portu na kterém má server očekávat spojení" << endl;
-            RETURN_CODE = PORT_NUM_UNSPECIFIED;
-            break;
+            exit(PORT_NUM_UNSPECIFIED);
         case UNKNOWN_ARGUMENT:
             cerr << "Zadaný argument nebyl rozpoznán" << endl;
-            RETURN_CODE = UNKNOWN_ARGUMENT;
-            break;
+            exit(UNKNOWN_ARGUMENT);
         case PORT_BAD_RANGE:
             cerr << "Zadaný port není číslem v rozsahu <0;65535>" << endl;
-            RETURN_CODE = PORT_BAD_RANGE;
-            break;
+            exit(PORT_BAD_RANGE);
         default:
             break;
     }
 }
 
-bool IsLegitPortNum(char *pn)
+void IsLegitPortNumber(char *pn)
 {
     string portNum (pn);
     regex intRegex ("^([0-9]+)$");
     smatch matches;
 
-    if (regex_search(portNum,matches,intRegex)) // Kontrola zda se vůbec jedná o číslo
+    if(regex_search(portNum,matches,intRegex)) // Kontrola zda se vůbec jedná o číslo
     {
         string::size_type st;
-        LISTEN_PORT = stoi(portNum,&st);
-
-        return LISTEN_PORT >= 0 && LISTEN_PORT <= 65535;
+        PORT = stoi(portNum,&st);
+        if(!(PORT >= 0 && PORT <= 65535))
+            Error(PORT_BAD_RANGE);
     }
-    return false;
+    Error(PORT_BAD_RANGE);
 }
 
-void ParseArguments(int arrayLen, char **argumentsArray)
+void ParseArguments(int argumentsCount, char **argumentsArray)
 {
-    if (arrayLen < 2)
-    {
+    if(argumentsCount < 2) // Nebyl zadán žádný uživatelský argument
         Error(TOO_FEW_ARGUMENTS);
-        return;
-    }
-
-    if (strcmp(argumentsArray[1],"-h") == 0)
+    if(strcmp(argumentsArray[1],"-h") == 0)
     {
-        if(arrayLen != 2)
-        {
-            Error(TOO_MANY_ARGUMENTS);
-            return;
-        }
-        else
-        {
+        if(argumentsCount == 2)
             PrintHelp();
-            return;
-        }
-    }
-    else if (strcmp(argumentsArray[1],"-p") == 0)
-    {
-        if(arrayLen < 3)
-        {
-            Error(PORT_NUM_UNSPECIFIED);
-            return;
-        }
-        if(arrayLen > 3)
-        {
+        else
             Error(TOO_MANY_ARGUMENTS);
-            return;
-        }
-
-        if(!IsLegitPortNum(argumentsArray[2]))
-        {
-            Error(PORT_BAD_RANGE);
-            return;
-        }
     }
-    else
+    if(strcmp(argumentsArray[1],"-p") == 0)
     {
-        Error(UNKNOWN_ARGUMENT);
+        if(argumentsCount < 3) // Číslo portu nebylo uživatelem zadáno
+            Error(PORT_NUM_UNSPECIFIED);
+        IsLegitPortNumber(argumentsArray[2]); // Ověření zda se jedná o validní číslo portu, případně se toto číslo nastaví
         return;
     }
+    Error(UNKNOWN_ARGUMENT); // Neznámý uživatelský argument
 }
 
 int main(int argc, char **argv)
 {
     ParseArguments(argc,argv);
-    return RETURN_CODE;
+    if(DEBUG)
+        DEBUG_USERINPUT();
+    return OK;
 }
 
 /* end isaserver.cpp */
