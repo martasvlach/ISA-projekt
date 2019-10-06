@@ -10,6 +10,11 @@
 #include <cstring>
 #include <sstream>
 #include <regex>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <netdb.h>
+
 using namespace std;
 
 // TODO: Doplnit co se stane při jednotlivých odpovědích serveru
@@ -95,11 +100,16 @@ void LoadCommand(int argumentsCount,char **argumentsArray, int position);
 //Funkce pro kontrolu uživatelem zadaného <id> u <command>
 void VerifyId(char **array,int position);
 
+// Ukazatel na adresy serveru
+struct hostent *serverAdrress;
+
+#define OK 0
+#define FAIL -1
+
 /*
  * CHYBY
  */
 
-#define OK 0
 #define MISSING_ARGUMENT 1
 #define TOO_MANY_ARGUMENTS 2
 #define HOST_NOT_SET 3
@@ -108,6 +118,10 @@ void VerifyId(char **array,int position);
 #define COMMAND_NOT_SET 6
 #define INVALID_COMMAND 7
 #define INVALID_ID_NUMBER 8
+
+#define CONNECT_TO_SERVER_ERROR 9
+#define NO_SERVER_INFO 10
+#define SOCKET_CREATE_ERROR 11
 
 /* end isaclient.h */
 

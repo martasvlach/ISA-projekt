@@ -48,18 +48,25 @@ struct addrinfo *LoadAddressInfo();
 void CheckAddressInfo(struct addrinfo *addressInfo);
 
 // Funkce pro nastavení a zapnutí serveru
-void ServerStart();
+int ServerStart();
 
 // Hlavní běhová funkce serveru
-void ServerRun();
+int ServerRun(int serverFD);
+
+// Zpracování požadavku na server
+void RequestResolver(int handle);
+
+#define BUFFER_SIZE 10000
+
+#define QUEUE_LEN 1
 
 #define OK 0
+
 #define FAIL -1
 
 /*
  * CHYBY
  */
-
 
 // Chyby zpracování argumentů
 
@@ -68,23 +75,13 @@ void ServerRun();
 #define TOO_FEW_ARGUMENTS 3
 #define PORT_NUM_UNSPECIFIED 4
 #define PORT_BAD_RANGE 5
+#define FORK_ERROR 10
 
 // Chyby ohledně síťové složky
 
 #define NULL_ADDRESS_INFO 6
 #define SOCKET_ERROR 7
+#define QUEUE_ERROR 8
+#define ACCEPT_ERROR 9
 
 /* end isaserver.h */
-
-/* DEBUG */
-
-void DEBUG_USERINPUT()
-{
-    stringstream ss;
-    ss << PORT;
-    string portString = ss.str();
-
-    cout << "Port : " + portString << endl;
-}
-
-/* END DEBUG */

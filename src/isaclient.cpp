@@ -67,7 +67,15 @@ void Error(int errorCode)
         case INVALID_ID_NUMBER:
             cerr << "Zadané <id> není platné číslo pro id (celé kladné číslo větší než 0)" << endl;
             exit(INVALID_ID_NUMBER);
-            break;
+        case CONNECT_TO_SERVER_ERROR:
+            cerr << "Nepodařilo se připojit k zadanému serveru na zadaném portu, ujistěte se, že je server zapnutý" << endl;
+            exit(CONNECT_TO_SERVER_ERROR);
+        case NO_SERVER_INFO:
+            cerr << "Nepodařilo se získat informace o serveru nutné pro spojení s ním, ověřte vstupní data" << endl;
+            exit(NO_SERVER_INFO);
+        case SOCKET_CREATE_ERROR:
+            cerr << "Nepodařilo se otevřít socket pro komunikaci se serverem" << endl;
+            exit(SOCKET_CREATE_ERROR);
         default:
             break;
     }
@@ -229,11 +237,46 @@ void ParseArguments(int argumentsCount, char **argumentsArray)
         Error(INVALID_COMMAND);
 }
 
+int ConnectToServer()
+{
+
+    struct hostent *serverAdrress; // Ukazatel na adresy serveru
+    struct sockaddr_in client; // Klient
+    struct sockaddr_in server; // Server
+    int clientSocket;
+
+    stringstream bufferStream;
+    string buffer;
+
+    memset(&server,0,sizeof(server)); // vynulování
+    memset(&client,0,sizeof(client)); // // vynulování
+
+    server.sin_family = AF_INET; // IPv4 na serveru
+
+    // DNS rozpoznání HOST pomocí gethostbyname ()
+    if((serverAdrress = gethostbyname(HOST.c_str()))== nullptr) // Nemám žádnou adresu
+        Error(NO_SERVER_INFO);
+
+    memcpy(&server.sin_addr,serverAdrress->h_addr,serverAdrress->h_length); // Adresa na serveru
+    server.sin_port = htons(PORT); // Port na serveru, musí to být v network byte orderu kvůli kompabilitě
+
+    if((clientSocket = socket(AF_INET,SOCK_STREAM,0)) == FAIL) // Otevření socketu klienta
+        Error(SOCKET_CREATE_ERROR);
+
+    if (connect(clientSocket, (struct sockaddr *)&server, sizeof(server)) == FAIL)
+        Error(CONNECT_TO_SERVER_ERROR);
+
+    bufferStream << "GET /boards HTTP/1.1\r\n\r\n";
+    buffer = bufferStream.str();
+
+    send(clientSocket,buffer.c_str(), buffer.size(),0);
+    return OK;
+}
+
 int main(int argc,char **argv)
 {
     ParseArguments(argc,argv);
-    if(DEBUG)
-        DEBUG_USERINPUT();
+    ConnectToServer();
     return OK;
 }
 

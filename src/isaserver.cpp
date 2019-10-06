@@ -30,7 +30,7 @@ void Error(int errorCode)
     switch (errorCode)
     {
         case TOO_FEW_ARGUMENTS:
-            cerr << "Nebyl zadán žádný uživatelský argument" << endl;
+            cerr << "Nebyl zadán žádný uživatelský argument .. \n použití ./isaserver -p <port>" << endl;
             exit(TOO_FEW_ARGUMENTS);
         case TOO_MANY_ARGUMENTS:
             cerr << "Bylo zadáno příliš mnoho argumentů pro tuto jejich kombinaci" << endl;
@@ -50,6 +50,15 @@ void Error(int errorCode)
         case SOCKET_ERROR:
             cerr << "Nepodařilo se otevřít nebo nabindovat socket na zadanén portu" << endl;
             exit(SOCKET_ERROR);
+        case QUEUE_ERROR:
+            cerr << "Nepodařilo se vytvořit frontu požadavků" << endl;
+            exit(QUEUE_ERROR);
+        case ACCEPT_ERROR:
+            cerr << "Nepodařilo se spustit naslouchání požadavků na serveru" << endl;
+            exit(ACCEPT_ERROR);
+        case FORK_ERROR:
+            cerr << "Nastala chyba během operace fork()" << endl;
+            exit(FORK_ERROR);
         default:
             break;
     }
@@ -97,7 +106,7 @@ struct addrinfo *LoadAddressInfo()
 {
     int returnCodeGAI; // Návratový kód funce getaddrinfo()
     struct  addrinfo *addressInfo; // Získaná struktura dat o adrese
-    struct addrinfo hints; // hints nastavení viz projekt IPK2
+    struct addrinfo hints; // hints nastavení (okoukáno z méno projektu IPK2)
 
     memset(&hints,0, sizeof(hints)); // Vynulování hints
     hints.ai_family = AF_INET; // IPv4
@@ -117,6 +126,8 @@ struct addrinfo *LoadAddressInfo()
         perror("LINE 113 - CheckAddressInfo() - : ");
         Error(NULL_ADDRESS_INFO);
     }
+    if(DEBUG)
+        cout << "OK - Have address info" << endl;
     return addressInfo;
 }
 
@@ -128,6 +139,8 @@ void CheckAddressInfo(struct addrinfo *addressInfo)
             perror("LINE 124 - CheckAddressInfo() - : ");
         Error(NULL_ADDRESS_INFO);
     }
+    if (DEBUG)
+        cout << "OK - Adress info is not null" << endl;
 }
 
 int OpenSocket(struct addrinfo *addressInfo)
@@ -135,7 +148,7 @@ int OpenSocket(struct addrinfo *addressInfo)
     if(addressInfo == nullptr) // Ověření že mám potřené data o adrese
         return FAIL;
 
-    int socketFD; //File Descriptor socketu
+    int socketFD; // File Descriptor socketu
     bool failed = true; // Příznak toho, zda se mi úspěšně podařilo otevřít a nabindovat socket
 
     // Projdu všechny výsledky a pokusím se otevřit a nabindovat na první na kterém se mi to podaří
@@ -149,8 +162,11 @@ int OpenSocket(struct addrinfo *addressInfo)
             close(socketFD); // Uzavřu socket
             continue;
         }
+
         // Podařilo se mi otevřít socket a nabindovat se na
         failed = false;
+        if(DEBUG)
+            cout << "OK - Socket created and binded" << endl;
         break;
     }
 
@@ -162,31 +178,90 @@ int OpenSocket(struct addrinfo *addressInfo)
             perror("LINE 160 - OpenSocket() - : ");
         return FAIL;
     }
-    return OK;
+    return socketFD; // Vrátím File Descriptor socketu
 }
 
-void ServerStart()
+int ServerStart()
 {
+    int socketFD;
     struct addrinfo *addressInfo; // Struktura s informacemi o adrese
     addressInfo = LoadAddressInfo(); // Pokusím se získat data o adrese, předání z pole argumentů, protože port mám jako int a je potřeba jako *char
     CheckAddressInfo(addressInfo); // Kontrola že se mě data podařilo získat
-    if((OpenSocket(addressInfo)) != OK)
+    if((socketFD = OpenSocket(addressInfo)) == FAIL) // Nedostal jsem validní číslo file descriptoru socketu
         Error(SOCKET_ERROR);
+    if (listen(socketFD,QUEUE_LEN) != OK) // Nepodařiloe se mi vytvořit frontu požadavků
+        Error(QUEUE_ERROR);
+
+    return socketFD;
 }
 
-void ServerRun()
+void RequestResolver(int handler)
 {
-    // TODO : TBD
+    char buffer[BUFFER_SIZE]; // Vytvoření bufferu pro požadavek na server
+    stringstream responseBuffer;
+    string response;
+    recv(handler, buffer, BUFFER_SIZE, 0); // Přijmutí požadavku na server do bufferu
+    string request (buffer);
+
+    responseBuffer << "HTTP/1.0 200 OK\r\n\r\n";
+    response = responseBuffer.str();
+    send(handler,response.c_str(),response.length(),0);
+}
+
+int ServerRun(int serverFD)
+{
+    pid_t pid;
+    int newSocket;
+
+    struct sockaddr_storage client; // TODO popis
+    socklen_t size = sizeof(client);
+
+    while(true)
+    {
+       if((newSocket = accept(serverFD, (struct sockaddr *)&client, &size)) == FAIL)
+           Error(ACCEPT_ERROR);
+       if(DEBUG)
+           cout << "OK -Accept ()" << endl;
+
+       pid = fork(); // Duplicita procesu pro paralelní zpracování požadavků
+       if(DEBUG)
+           cout << "OK - fork() happen" << endl;
+
+       if (pid > 0) // Rodičovský proces (poslouchání)
+       {
+        if(DEBUG)
+            cout << "OK - Son will parse request and parrent will listen again" << endl;
+        close(newSocket);
+       }
+
+       else if (pid == 0) // Synovský proces (zpracování požavku na server)
+       {
+           close(serverFD);
+           RequestResolver(newSocket);
+           if(DEBUG)
+            cout << "Closing son process - Request resolver" << endl;
+           close(newSocket);
+           exit(OK);
+       }
+
+       else // Fork() selhal
+       {
+           Error(FORK_ERROR);
+       }
+    }
+    if(DEBUG)
+        cout << "Closing origin process" << endl;
+    close(serverFD);
+    return OK;
 }
 
 int main(int argc, char **argv)
 {
     ParseArguments(argc,argv); // Zparsování argumentů
-    ServerStart(); // Rozběhnutí serveru
+    int serverSocket;
+    serverSocket = ServerStart(); // Rozběhnutí serveru a navrácení file descriptoru socketu serveru
+    ServerRun(serverSocket);
 
-    if(DEBUG)
-        DEBUG_USERINPUT();
-    cout << "Všechno vypadá OK" << endl;
     return OK;
 }
 
