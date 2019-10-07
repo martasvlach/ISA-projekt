@@ -237,6 +237,53 @@ void ParseArguments(int argumentsCount, char **argumentsArray)
         Error(INVALID_COMMAND);
 }
 
+string CreateRequest()
+{
+    stringstream bufferStream;
+    string buffer;
+
+    switch (COMMAND)
+    {
+        case BOARDS:
+            bufferStream << "GET /boards HTTP/1.1\r\n";
+            bufferStream << "Host: " << HOST << ":" << PORT << "\r\n\r\n";
+            break;
+        case BOARD_ADD:
+            bufferStream << "POST /boards/" << NAME << " HTTP/1.1\r\n";
+            bufferStream << "Host: " << HOST << ":" << PORT << "\r\n\r\n";
+            break;
+        case BOARD_DELETE:
+            bufferStream << "DELETE /boards/" << NAME << " HTTP/1.1\r\n";
+            bufferStream << "Host: " << HOST << ":" << PORT << "\r\n\r\n";
+            break;
+        case BOARDS_LIST:
+            bufferStream << "GET /board/" << NAME << " HTTP/1.1\r\n";
+            bufferStream << "Host: " << HOST << ":" << PORT << "\r\n\r\n";
+            break;
+        case ITEM_ADD:
+            bufferStream << "POST /board/" << NAME << " HTTP/1.1\r\n";
+            bufferStream << "Host: " << HOST << ":" << PORT << "\r\n";
+            bufferStream << "Content-Type: text/plain\r\n";
+            bufferStream << "Content-Length: " << CONTENT.length() << "\r\n\r\n";
+            bufferStream << CONTENT;
+            break;
+        case ITEM_DELETE:
+            bufferStream << "DELETE /board/" << NAME << "/" << ID << " HTTP/1.1\r\n";
+            bufferStream << "Host: " << HOST << ":" << PORT << "\r\n\r\n";
+            break;
+        case ITEM_UPDATE :
+            bufferStream << "PUT /board/" << NAME << "/" << ID <<" HTTP/1.1\r\n";
+            bufferStream << "Host: " << HOST << ":" << PORT << "\r\n";
+            bufferStream << "Content-Type: text/plain\r\n";
+            bufferStream << "Content-Length: " << CONTENT.length() << "\r\n\r\n";
+            bufferStream << CONTENT;
+            break;
+
+    }
+    buffer = bufferStream.str();
+    return buffer;
+}
+
 int ConnectToServer()
 {
 
@@ -245,8 +292,10 @@ int ConnectToServer()
     struct sockaddr_in server; // Server
     int clientSocket;
 
-    stringstream bufferStream;
-    string buffer;
+    string request;
+
+    char bufferResponse[BUFFER_SIZE];
+
 
     memset(&server,0,sizeof(server)); // vynulování
     memset(&client,0,sizeof(client)); // // vynulování
@@ -266,18 +315,23 @@ int ConnectToServer()
     if (connect(clientSocket, (struct sockaddr *)&server, sizeof(server)) == FAIL)
         Error(CONNECT_TO_SERVER_ERROR);
 
-    bufferStream << "GET /boards HTTP/1.1\r\n\r\n";
-    buffer = bufferStream.str();
 
-    send(clientSocket,buffer.c_str(), buffer.size(),0);
+    request = CreateRequest(); // Vytvoření požadavku na server
+
+    send(clientSocket,request.c_str(), request.size(),0); // Odešlu požadavek  na server
+    recv(clientSocket, bufferResponse, BUFFER_SIZE, 0); // Očekávám odpověď od serveru
+
+    string response (bufferResponse);
+    if(response.empty())
+        return FAIL; // Server neodeslal odpověď můj požadavek byl pravděpodovně zahozen
+
     return OK;
 }
 
 int main(int argc,char **argv)
 {
     ParseArguments(argc,argv);
-    ConnectToServer();
-    return OK;
+    return ConnectToServer();
 }
 
 /* end isaclient.cpp */

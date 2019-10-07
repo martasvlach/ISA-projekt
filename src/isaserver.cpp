@@ -203,9 +203,19 @@ void RequestResolver(int handler)
     recv(handler, buffer, BUFFER_SIZE, 0); // Přijmutí požadavku na server do bufferu
     string request (buffer);
 
-    responseBuffer << "HTTP/1.0 200 OK\r\n\r\n";
+    regex testRegex ("\r\n\r\n$");
+    regex testRegex2 ("GET /boards HTTP/1.1\r\n");
+    smatch matches;
+    smatch matches2;
+
+    responseBuffer << "HTTP/1.1 200 OK\r\n\r\n";
     response = responseBuffer.str();
-    send(handler,response.c_str(),response.length(),0);
+
+    if (regex_search(request,matches,testRegex))
+        if(regex_search(request,matches2,testRegex2))
+            send(handler,response.c_str(),response.length(),0);
+    else
+        cout << "Unknown request" << endl;
 }
 
 int ServerRun(int serverFD)

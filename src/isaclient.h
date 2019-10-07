@@ -17,8 +17,6 @@
 
 using namespace std;
 
-// TODO: Doplnit co se stane při jednotlivých odpovědích serveru
-
 /*
  * Požadavky klienta
  * 1) boards - Vrátí uživateli seznam všech dostupných nástěnek (1/řádek)
@@ -42,6 +40,9 @@ int ID = INT_MAGIC;
 
 // Uživatelem zadané číslo portu
 int PORT = INT_MAGIC;
+
+// velikost BUFFERU pro příjem odpovědi od serveru
+#define BUFFER_SIZE 10000
 
 // Uživatelem zadaný HOST
 string HOST;
@@ -150,3 +151,6 @@ void DEBUG_USERINPUT()
     cout << "    <content> : " + CONTENT << endl;
 }
  /* END DEBUG */
+
+
+ // TODO ? host aka IPv6
