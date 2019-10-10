@@ -1,0 +1,3 @@
+/home/martin/Desktop/WorkingISA/Client/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/martin/Desktop/WorkingISA/Client/cmake-build-debug/CMakeFiles/Client.dir
+/home/martin/Desktop/WorkingISA/Client/cmake-build-debug/CMakeFiles/edit_cache.dir

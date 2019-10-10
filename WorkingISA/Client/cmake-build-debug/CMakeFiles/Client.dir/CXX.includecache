@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/martin/Desktop/WorkingISA/Client/isaclient.cpp
+isaclient.h
+/home/martin/Desktop/WorkingISA/Client/isaclient.h
+
+/home/martin/Desktop/WorkingISA/Client/isaclient.h
+iostream
+-
+string
+-
+cstring
+-
+sstream
+-
+regex
+-
+arpa/inet.h
+-
+netinet/in.h
+-
+unistd.h
+-
+netdb.h
+-
+

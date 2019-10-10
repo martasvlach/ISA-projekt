@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/isaserver.dir/isaserver.cpp.o  -o isaserver -lpthread 
