@@ -5,6 +5,9 @@
  * Soubor: isaserver.cpp
  ************************************************/
 
+
+// TODO: oddelat debugFlag
+
 #include <thread>
 #include "isaserver.h"
 
@@ -215,6 +218,17 @@ void RequestResolver(int ClientSocket) {
     regex itemAddRegex ("^POST /board/([a-zA-Z0-9]+) HTTP/1.1\r\n");
     smatch matchesItemAdd;
 
+    regex itemDeleteRegex("^DELETE /board/([a-zA-Z0-9]+)/([0-9]+) HTTP/1.1\r\n");
+    smatch matchesItemDelete;
+
+    regex itemUpdateRegex("^PUT /board/([a-zA-Z0-9]+)/([0-9]+) HTTP/1.1\r\n");
+    smatch matchesItemUpdate;
+
+    regex contentLenRegex ("Content-Length: (\\d+)");
+    smatch matchesContentLen;
+
+    regex newLineRegex("\\\\n"); // Potřebuju korektně tisknout nové řádky zadané uživatelem
+
 
     if (regex_search(request, matchesBoards, boardsRegex)) // Výpis všech nástěnek
     {
@@ -229,7 +243,6 @@ void RequestResolver(int ClientSocket) {
         responseBuffer << "Content-Type: text/plain\r\n";
         responseBuffer << "Content-Length: " << boards.length() << "\r\n\r\n";
         responseBuffer << boards;
-
     }
 
     else if (regex_search(request,matchesAddBoard,addBoardRegex)) // Vložení nové nástěnky
@@ -251,6 +264,7 @@ void RequestResolver(int ClientSocket) {
             responseBuffer << "HTTP/1.1 201 OK\r\n\r\n";
         }
     }
+
     else if (regex_search(request,matchesDeleteBoard,deleteBoardRegex)) // Smazání nástěnky
     {
         bool isIn = false;
@@ -326,18 +340,106 @@ void RequestResolver(int ClientSocket) {
             responseBuffer << "HTTP/1.1 404 NOT FOUND\r\n\r\n";
         else
         {
-            BOARDS[index].push_back()
-            responseBuffer << "HTTP/1.1 201 OK\r\n\r\n";
+            if(regex_search(request,matchesContentLen,contentLenRegex))
+            {
+                int contentLen;
+                istringstream contentLenStream (matchesContentLen[1]);
+                contentLenStream >> contentLen;
+
+                if(contentLen > 0)
+                {
+                    string content;
+                    content = request.substr(request.length() - contentLen);
+                    content = regex_replace(content,newLineRegex,"\n");
+                    BOARDS[index].push_back(content);
+                    responseBuffer << "HTTP/1.1 201 OK\r\n\r\n";
+                }
+                else
+                    responseBuffer << "HTTP/1.1 400 BAD REQUEST\r\n\r\n";
+            }
+        }
+    }
+    else if (regex_search(request,matchesItemDelete,itemDeleteRegex))
+    {
+        string name (matchesItemDelete[1]);
+        int contributionIndex;
+        istringstream contributionIndexStream (matchesItemDelete[2]);
+        contributionIndexStream >> contributionIndex;
+
+        bool isIn = false;
+        int index;
+
+        for (index = 0; index < BOARDS.size(); index++)
+        {
+            if(BOARDS[index][0] == name)
+            {
+                isIn = true;
+                break;
+            }
+        }
+        if(!isIn)
+            responseBuffer << "HTTP/1.1 404 NOT FOUND\r\n\r\n";
+        else
+        {
+            if((contributionIndex < 1) || (contributionIndex >= (BOARDS[index].size())))
+                responseBuffer << "HTTP/1.1 404 NOT FOUND\r\n\r\n";
+            else
+            {
+                BOARDS[index].erase(BOARDS[index].begin() + contributionIndex);
+                responseBuffer << "HTTP/1.1 200 OK\r\n\r\n";
+            }
+        }
+    }
+    else if (regex_search(request,matchesItemUpdate,itemUpdateRegex)) // Aktualizace obsahu příspěvku na nástěnce
+    {
+        string name (matchesItemUpdate[1]);
+        int contributionIndex;
+        istringstream contributionIndexStream (matchesItemUpdate[2]);
+        contributionIndexStream >> contributionIndex;
+
+        bool isIn = false;
+        int index;
+        for (index = 0; index < BOARDS.size(); index++)
+        {
+            if(BOARDS[index][0] == name)
+            {
+                isIn = true;
+                break;
+            }
+        }
+        if(!isIn)
+            responseBuffer << "HTTP/1.1 404 NOT FOUND\r\n\r\n";
+        else
+        {
+            if((contributionIndex < 1) || (contributionIndex >= (BOARDS[index].size())))
+                responseBuffer << "HTTP/1.1 404 NOT FOUND\r\n\r\n";
+            else
+            {
+                if(regex_search(request,matchesContentLen,contentLenRegex))
+                {
+                    int contentLen;
+                    istringstream contentLenStream (matchesContentLen[1]);
+                    contentLenStream >> contentLen;
+
+                    if(contentLen > 0)
+                    {
+                        string content;
+                        content = request.substr(request.length() - contentLen);
+                        content = regex_replace(content,newLineRegex,"\n");
+                        BOARDS[index][contributionIndex] = content;
+                        responseBuffer << "HTTP/1.1 200 OK\r\n\r\n";
+                    }
+                    else
+                        responseBuffer << "HTTP/1.1 400 BAD REQUEST\r\n\r\n";
+                }
+            }
         }
     }
 
-    else
+    else // Nedostal jsem v požavku nic známého
     {
         responseBuffer << "HTTP/1.1 404 NOT FOUND\r\n\r\n";
     }
-
-
-
 
     response = responseBuffer.str();
     send(ClientSocket,response.c_str(),response.length(),0);

@@ -8,7 +8,7 @@ isaclient: isaclient.cpp
 	$(CPP) $(CPPFLAGS)  isaclient.cpp isaclient.h -o isaclient
 
 isaserver: isaserver.cpp
-	$(CPP) $(CPPFLAGS)  isaserver.cpp isaserver.h -o isaserver
+	$(CPP) $(CPPFLAGS)  isaserver.cpp isaserver.h -lpthread -pthread -o isaserver
 
 clean:
 	rm -f *.o

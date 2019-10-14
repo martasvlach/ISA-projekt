@@ -56,7 +56,7 @@ int ServerRun(int serverFD);
 // Zpracování požadavku na server
 void RequestResolver(int ClientSocket);
 
-#define BUFFER_SIZE 10000
+#define BUFFER_SIZE 16384
 
 #define QUEUE_LEN 5
 

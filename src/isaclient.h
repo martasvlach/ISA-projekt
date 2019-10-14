@@ -71,9 +71,6 @@ string NAME;
 // Návratový kód programu
 int RETURN_CODE;
 
-// DEBUG FLAG
-bool DEBUG = true;
-
 // Funkce pro výpis uživatelské nápovědy
 void PrintHelp();
 
@@ -101,6 +98,9 @@ void LoadCommand(int argumentsCount,char **argumentsArray, int position);
 //Funkce pro kontrolu uživatelem zadaného <id> u <command>
 void VerifyId(char **array,int position);
 
+// TODO popis
+void PrintResponse(string response);
+
 // Ukazatel na adresy serveru
 struct hostent *serverAdrress;
 
@@ -125,32 +125,3 @@ struct hostent *serverAdrress;
 #define SOCKET_CREATE_ERROR 11
 
 /* end isaclient.h */
-
-/* DEBUG */
-
-void DEBUG_USERINPUT()
-{
-
-    stringstream ss;
-    ss << PORT;
-    string portString = ss.str();
-
-    stringstream ss2;
-    ss2 << COMMAND;
-    string commandString = ss2.str();
-
-    stringstream ss3;
-    ss3 << ID;
-    string idString = ss3.str();
-
-    cout << "Hostname : " + HOST << endl;
-    cout << "Port : " + portString << endl;
-    cout << "Command : " + commandString << endl;
-    cout << "    <name> : " + NAME << endl;
-    cout << "    <id> : " + idString<< endl;
-    cout << "    <content> : " + CONTENT << endl;
-}
- /* END DEBUG */
-
-
- // TODO ? host aka IPv6

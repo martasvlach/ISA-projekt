@@ -284,6 +284,31 @@ string CreateRequest()
     return buffer;
 }
 
+void PrintResponse(string response)
+{
+    regex contentLenRegex ("Content-Length: (\\d+)");
+    smatch matchesContentLen;
+
+    if(regex_search(response,matchesContentLen,contentLenRegex))
+    {
+        int contentLen;
+        istringstream contentLenStream (matchesContentLen[1]);
+        contentLenStream >> contentLen;
+
+        if(contentLen > 0)
+        {
+            string content;
+            string header;
+            content = response.substr(response.length() - contentLen);
+            cout << content;
+            header = response.substr(0,response.length() - contentLen);
+            cerr << header;
+            return;
+        }
+    }
+    cerr << response;
+}
+
 int ConnectToServer()
 {
 
@@ -325,7 +350,7 @@ int ConnectToServer()
     if(response.empty())
         return FAIL; // Server neodeslal odpověď můj požadavek byl pravděpodovně zahozen
 
-    cout << response;
+    PrintResponse(response);
     close(clientSocket);
     return OK;
 }
