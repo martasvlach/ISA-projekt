@@ -13,18 +13,25 @@
 #include <sstream>
 #include <unistd.h>
 #include <regex>
+#include <thread>
 
-// Síťové knihovny
+// Knihovny pro práci se síťovou složkou projektu
 #include <netdb.h>
 #include <sys/socket.h>
 
 using namespace std;
+
+// Schéma pro uložení jednolitvých nástěnek a příspěvků na těchto nástěnkách
+vector<vector<string>> BOARDS;
 
 // Port specifikovaný uživatel, na kterém bude server očekávat spojení
 int PORT;
 
 // Návratový kód programu
 int RETURN_CODE;
+
+// DEBUG FLAG
+bool DEBUG = false;
 
 // Funkce pro zpracování programových argumentů zadaných uživatelem
 void ParseArguments(int arrayLen, char **argumentsArray);
@@ -38,13 +45,10 @@ void Error(int errorCode);
 // Kontrola zda je zadaný řetězec validním číslem portu (<0;65535>)
 void IsLegitPortNumber(char *pn);
 
-// DEBUG FLAG
-bool DEBUG = true;
-
 // Funkce pro načtění struktury informace o IP adrese nutné pro otevření socketu
 struct addrinfo *LoadAddressInfo();
 
-// Funkce pro kontrolu, že se mi podařilo získat potřebné infomace o adrese
+// Funkce pro kontrolu, že se mi podařilo získat potřebné infomace o adrese 
 void CheckAddressInfo(struct addrinfo *addressInfo);
 
 // Funkce pro nastavení a zapnutí serveru
@@ -56,15 +60,18 @@ int ServerRun(int serverFD);
 // Zpracování požadavku na server
 void RequestResolver(int ClientSocket);
 
+// Velikost bufferu pro posílání po síťi
 #define BUFFER_SIZE 16384
 
+// Fronta pro příchozí spojení
 #define QUEUE_LEN 5
 
+// Úspěšnost
 #define OK 0
 
+// Neúspěch
 #define FAIL -1
 
-vector<vector<string>> BOARDS;
 
 /*
  * CHYBY

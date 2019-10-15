@@ -42,7 +42,7 @@ int ID = INT_MAGIC;
 int PORT = INT_MAGIC;
 
 // velikost BUFFERU pro příjem odpovědi od serveru
-#define BUFFER_SIZE 10000
+#define BUFFER_SIZE 16384
 
 // Uživatelem zadaný HOST
 string HOST;
@@ -98,11 +98,15 @@ void LoadCommand(int argumentsCount,char **argumentsArray, int position);
 //Funkce pro kontrolu uživatelem zadaného <id> u <command>
 void VerifyId(char **array,int position);
 
-// TODO popis
+// Výpis hlavičky HTTP odpovědi na stderr a těla odpovědi na stdout
 void PrintResponse(string response);
 
 // Ukazatel na adresy serveru
 struct hostent *serverAdrress;
+
+
+// Funkce pro výpis těla odpovědi na stdout a hlavičky odpovědi na stderr
+void PrintResponse(string response);
 
 #define OK 0
 #define FAIL -1

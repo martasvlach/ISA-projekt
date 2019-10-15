@@ -36,7 +36,8 @@ void PrintHelp()
    cout << "" << endl;
    cout << "    == Autor ==" << endl;
    cout << "      Martin Vlach [xvlach18@stud.fit.vutbr.cz]" << endl;
-   exit(OK); // Návratový kód po nápovědě je 0
+   exit(OK); 
+   // Návratový kód po nápovědě je OK
 }
 
 void Error(int errorCode)
@@ -278,8 +279,10 @@ string CreateRequest()
             bufferStream << "Content-Length: " << CONTENT.length() << "\r\n\r\n";
             bufferStream << CONTENT;
             break;
-
+        case UNKNOWN:
+            break;    
     }
+
     buffer = bufferStream.str();
     return buffer;
 }
