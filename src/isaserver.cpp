@@ -191,7 +191,8 @@ int ServerStart()
     return socketFD; // Vracím FD socketu na kterém poběží server
 }
 
-void RequestResolver(int ClientSocket) {
+void RequestResolver(int ClientSocket) 
+{
     char buffer[BUFFER_SIZE]; // Vytvoření bufferu pro požadavek na server
     stringstream responseBuffer;
     string response;
@@ -240,6 +241,8 @@ void RequestResolver(int ClientSocket) {
         string boards;
         responseBuffer << "HTTP/1.1 200 OK\r\n";
 
+        mutexBOARDS.lock(); // Jdu pracovat se schématem nástenek a jejich obsahu zamykám
+
         // Projdu si všechny seznam všech nástěnek a uložím si jejich názvy, přičemž jsou odděleny pomocí '\n'
         for (unsigned long int index = 0; index < BOARDS.size(); index++)
             tmpBuffer << BOARDS[index][0] << "\n";
@@ -249,6 +252,7 @@ void RequestResolver(int ClientSocket) {
         // Zjištění délky užitného obsahu zprávy, a uvedení tohoto faktu do HTTP hlavičky
         responseBuffer << "Content-Length: " << boards.length() << "\r\n\r\n";
         responseBuffer << boards;
+        mutexBOARDS.unlock();  // Mohu odemknout a povolit přístup ostatním
     }
 
     // Vložení nové nástěnky
@@ -256,6 +260,9 @@ void RequestResolver(int ClientSocket) {
     {
         string name = matchesAddBoard[1]; // Jméno nástěnky kterou chci vytvořit
         bool alreadyIn = false; // Příznak toho, že nástěnka se stejným jménem již existuje
+
+        mutexBOARDS.lock(); // Jdu pracovat se schématem nástenek a jejich obsahu zamykám
+
         for(unsigned long int index  = 0; index < BOARDS.size(); index++)
         {
             if(name == BOARDS[index][0])
@@ -269,6 +276,8 @@ void RequestResolver(int ClientSocket) {
             BOARDS.push_back(vector<string>{name});
             responseBuffer << "HTTP/1.1 201 OK\r\n\r\n";
         }
+
+        mutexBOARDS.unlock();  // Mohu odemknout a povolit přístup ostatním
     }
 
     // Smazání nástěnky
@@ -277,6 +286,9 @@ void RequestResolver(int ClientSocket) {
         string name = matchesDeleteBoard[1]; // Jméno nástěnky
         bool isIn = false; // Příznak toho, zda existuje nástěnky s požadovaným jménem
         unsigned long int index; // Na jakém indexu s seznamu nástěneḱ se požadovaná nástěnka nachází
+
+        mutexBOARDS.lock(); // Jdu pracovat se schématem nástenek a jejich obsahu zamykám
+
         for(index = 0; index < BOARDS.size(); index++)
         {
             if(name == BOARDS[index][0])
@@ -292,6 +304,8 @@ void RequestResolver(int ClientSocket) {
         }
         else // Nástěnka s požadovaným jménem NEexistuje
             responseBuffer << "HTTP/1.1 404 NOT FOUND\r\n\r\n";
+
+        mutexBOARDS.unlock();  // Mohu odemknout a povolit přístup ostatním    
     }
 
     // Výpis všech příspěvků na zadané nástěnce
@@ -300,6 +314,9 @@ void RequestResolver(int ClientSocket) {
         string name = matchesBoardList[1]; // Jméno nástěnky
         bool isIn = false; // Příznak toho, zda existuje nástěnky s požadovaným jménem
         unsigned  long int index; // Na jakém indexu s seznamu nástěneḱ se požadovaná nástěnka nachází
+
+        mutexBOARDS.lock(); // Jdu pracovat se schématem nástenek a jejich obsahu zamykám
+
         for(index = 0; index < BOARDS.size(); index++)
         {
             if(name == BOARDS[index][0])
@@ -329,6 +346,8 @@ void RequestResolver(int ClientSocket) {
             responseBuffer << "Content-Length: " << boardContent.length() << "\r\n\r\n"; // Zjistění užitečné délky obsahu a následný zápis této hodnoty do HTTP hlavičky
             responseBuffer << boardContent;
         }
+
+        mutexBOARDS.unlock();  // Mohu odemknout a povolit přístup ostatním
     }
 
     // Přídání příspěvku do nástěnky
@@ -337,6 +356,9 @@ void RequestResolver(int ClientSocket) {
         string name = matchesItemAdd[1]; // Jméno nástěnky
         bool isIn = false; // Příznak toho, zda existuje nástěnky s požadovaným jménem
         unsigned long int index; // Na jakém indexu s seznamu nástěneḱ se požadovaná nástěnka nachází
+
+        mutexBOARDS.lock(); // Jdu pracovat se schématem nástenek a jejich obsahu zamykám
+
         for(index = 0; index < BOARDS.size(); index++)
         {
             if(name == BOARDS[index][0])
@@ -367,7 +389,9 @@ void RequestResolver(int ClientSocket) {
                     responseBuffer << "HTTP/1.1 400 BAD REQUEST\r\n\r\n";
             }
         }
+        mutexBOARDS.unlock();  // Mohu odemknout a povolit přístup ostatním
     }
+
     // Odstranění příspěvku z nástěnky
     else if (regex_search(request,matchesItemDelete,itemDeleteRegex)) 
     {
@@ -378,6 +402,8 @@ void RequestResolver(int ClientSocket) {
 
         bool isIn = false; // Příznak jestli nástěnka se zadaným jménem existuje
         unsigned long int index; // Index na kterém se nachází nástěnka v seznamu
+
+        mutexBOARDS.lock(); // Jdu pracovat se schématem nástenek a jejich obsahu zamykám
 
         for (index = 0; index < BOARDS.size(); index++)
         {
@@ -400,6 +426,7 @@ void RequestResolver(int ClientSocket) {
                 responseBuffer << "HTTP/1.1 200 OK\r\n\r\n";
             }
         }
+         mutexBOARDS.unlock();  // Mohu odemknout a povolit přístup ostatním
     }
 
     // Aktualizace obsahu příspěvku na nástěnce
@@ -412,6 +439,9 @@ void RequestResolver(int ClientSocket) {
 
         bool isIn = false; // Příznak zda existuje nástěnka s požadovaným name
         unsigned long int index; // Pozice nástěnky ve seznamu
+
+        mutexBOARDS.lock(); // Jdu pracovat se schématem nástenek a jejich obsahu zamykám
+
         for (index = 0; index < BOARDS.size(); index++)
         {
             if(BOARDS[index][0] == name)
@@ -448,6 +478,7 @@ void RequestResolver(int ClientSocket) {
                 }
             }
         }
+        mutexBOARDS.unlock();  // Mohu odemknout a povolit přístup ostatním
     }
 
     else // Nedostal jsem v požavku nic známého

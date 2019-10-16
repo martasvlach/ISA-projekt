@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <regex>
 #include <thread>
+#include <mutex>
 
 // Knihovny pro práci se síťovou složkou projektu
 #include <netdb.h>
@@ -23,6 +24,11 @@ using namespace std;
 
 // Schéma pro uložení jednolitvých nástěnek a příspěvků na těchto nástěnkách
 vector<vector<string>> BOARDS;
+
+/* Zámek pro zamčení schématu uložení tabulek při přístupu k totumu schématu ve vláknu programu
+ * Důvodem je konzistence dat, a jejich aktuálnost po dobu zpracování požadavku
+*/
+mutex mutexBOARDS;
 
 // Port specifikovaný uživatel, na kterém bude server očekávat spojení
 int PORT;

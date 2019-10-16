@@ -289,6 +289,7 @@ string CreateRequest()
 
 void PrintResponse(string response)
 {
+    // Zjištění délky části která se má vypsat na stdout (tělo HTTP)
     regex contentLenRegex ("Content-Length: (\\d+)");
     smatch matchesContentLen;
 
@@ -303,13 +304,14 @@ void PrintResponse(string response)
             string content;
             string header;
             content = response.substr(response.length() - contentLen);
-            cout << content;
+            cerr << header; // stderr výpis (HTTP hlavička)
+            cout << content; // stdout výpis (HTTP tělo)
             header = response.substr(0,response.length() - contentLen);
-            cerr << header;
-            return;
+            return; // Vyskočím ven abych na stderr nevypisoval 2x
         }
     }
-    cerr << response;
+    cerr << response; // stderr výpis (HTTP hlavička)
+    return;
 }
 
 int ConnectToServer()
