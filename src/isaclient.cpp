@@ -14,7 +14,7 @@ void PrintHelp()
    cout << "*******************************************************************************************************" << endl;
    cout << "Spuštění :   ./isaclient -H <host> -p <port> <command>"<< endl;
    cout << "Kde platí následující: " << endl;
-   cout << "- <host> .. je jménem hosta "<< endl;
+   cout << "- <host> .. je hostname serveru"<< endl;
    cout << "- <port> číslo portu v rozmezí <0;65535>" << endl;
    cout << "- <command> může být jedna z následujících variant" << endl;
    cout << "   *  1) boards - Vrátí uživateli seznam všech dostupných nástěnek (1/řádek)" << endl;
@@ -25,8 +25,7 @@ void PrintHelp()
    cout << "   *  6) item delete <name> <id> - Odstraní z nástěnky se jménem <name> příspěvek s číslem (pořadím) <id> (celé kladné číslo > 0)" << endl;
    cout << "   *  7) item update <name> <id> - Aktualizuje na nástěnce se jménem <name> příspěvek s číslem (pořadím) <id> (celé kladné číslo  > 0)" << endl;
    cout << "" << endl;
-   cout << "    == Omezení/Spuštění==" << endl;
-   cout << "    Program nepodporuje zadávání dat s diakritikou" << endl;
+   cout << "   == Omezení/Spuštění==" << endl;
    cout << "   Nezáleží na pořadí parametrů <host> a <port>" << endl;
    cout << " !! Pokud chcete zadat víceslovný/víceřádkový <content>/<name> je třeba jej uvést do uvozovek" << endl;
    cout << "" << endl;
