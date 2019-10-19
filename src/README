@@ -13,8 +13,8 @@ Struktura projektu
 
 Popis aplikace
 ------------------
-Aplikace bude umožnovat klientům spravovat nástěnky a příspěveky na serveru.
-Tato správa bude probíhat pomocí HTTP API.
+Aplikace umožňuje klientům spravovat nástěnky a příspěveky na serveru.
+Tato správa probíhá pomocí HTTP API.
 Prostřednictvím API je možné provádět následující operace.
 
 1) Získání názvu všech existujících nástěnek.
