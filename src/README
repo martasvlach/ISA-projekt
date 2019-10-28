@@ -1,4 +1,4 @@
-Programování síťové služby - HTTP nástenka
+Programování síťové služby - HTTP nástěnka
 Autor: Martin Vlach [xvlach18@stud.fit.vutbr.cz]
 
 Struktura projektu
@@ -13,25 +13,25 @@ Struktura projektu
 
 Popis aplikace
 ------------------
-Aplikace umožňuje klientům spravovat nástěnky a příspěveky na serveru.
+Aplikace umožňuje klientům spravovat nástěnky a příspěvky které jsou uloženy na serveru.
 Tato správa probíhá pomocí HTTP API.
 Prostřednictvím API je možné provádět následující operace.
 
 1) Získání názvu všech existujících nástěnek.
 2) Přidání nové nástěnky.
 3) Smazání existující nástěnky.
-4) Získání všech příspěvků na kontkretní nástěnce v očíslovém pořadí.
-5) Přídání příspěvku na kontkretní nástěnku.
-6) Smazání kontkretního příspěvku z kontkretní nástěnky.
-7) Editace obsahu kontkretního příspěvku na kontkretní nástěnce.
+4) Získání všech příspěvků na kontkrétní nástěnce v očíslovaném pořadí.
+5) Přídání příspěvku na kontkrétní nástěnku.
+6) Smazání kontkrétního příspěvku z kontkrétní nástěnky.
+7) Editace obsahu kontkrétního příspěvku na kontkrétní nástěnce.
 
 Popis API
 ------------------
-V následujícím popisu se budou objevovat následující zástupné reprezetnace
+V následujícím popisu se budou objevovat následující zástupné reprezentace
 
-<name> - Je jménem nástěnky
-<id> - Je aktuální pořadí kontkretního příspěvku v nástěnce <name>
-<content> - Je obsah (hodnota) příspěvku
+<name> - Je jménem nástěnky.
+<id> - Je aktuální pořadí kontkrétního příspěvku v nástěnce <name>.
+<content> - Je obsah (hodnota) příspěvku.
 
  + 'GET /boards' - Vrátí seznam dostupných nástěnek (jedna nástěnka/řádek).
  + 'POST /boards/name' - Vytvoří novou nástěnku s názvem name.
@@ -41,47 +41,46 @@ V následujícím popisu se budou objevovat následující zástupné reprezetna
  + 'PUT /board/name/id' - Smaže z nástěnky se jménem name příspěvek s aktuálním pořadovým číslem id.
  + 'DELETE /board/name/id' + 'obsah příspěvku v těle HTTP zprávy' - Akualizuje obsah příspěvku s aktuálním pořadovým číslem id na nástěnce se jménem name.
 
--- Vrácené kódy v hlavičce od odpovědi od serveru
-    200 - Úspěch metod GET, PUT a DELETE
-    201 - Úspěch metody POST
-    404 - Nástěnka se jménem name, nebo příspěvek s s pořadovým číslem id v nástěnce name neexistuje
-    400 - POST nebo PUT metoda s délkou příspěvku 0
-    409 - Pokus o vytvoření nástěnky se jménem name, avšak nástěnka se stejným jmenem již existuje
-    404 - Neznámý požadavek
+-- Vrácené kódy v hlavičce v odpovědi od serveru
+    200 - Úspěch metod GET, PUT a DELETE.
+    201 - Úspěch metody POST.
+    404 - Nástěnka se jménem name, nebo příspěvek s s pořadovým číslem id v nástěnce name neexistuje.
+    400 - POST nebo PUT metoda s délkou příspěvku 0.
+    409 - Pokus o vytvoření nástěnky se jménem name, avšak nástěnka se stejným jmenem již existuje.
+    404 - Neznámý požadavek.
 
 Instalace
 ------------------
-make build 
+make
 
 Použití:
 
 --------
 == SERVER ==
  Spuštění : ./isaserver -p <port_number>
-    - <port> je číslo portu na kterém má server očekávat spojení (<port> musí být v rozsahu <0;65535>)
+    - <port> je číslem portu na kterém má server očekávat spojení (<port> musí být v rozsahu <0;65535>)
  Příklad spuštění:
     ./isaserver -p 12345
 
-== CLIENT ==
+== KLIENT ==
 (Pro funčnost klienta musí být zapnutý server)
 Hlavička HTTP odpovědi od serveru je vypsána na stderr, tělo HTTP zprávy na stdout
 
 Spuštění :   ./isaclient -H <host> -p <port> <command>
-    - <host> je hostname serveru
+    - <host> je hostname / IP adresa verze 4  serveru
     - <port> je číslo portu na kterém server očekává spojení (<port> musí být v rozsahu <0;65535>)
     - <command> může být jedna z následujících variant
-        *  1) boards - Vrátí uživateli seznam všech dostupných nástěnek (1/řádek)
-        *  2) board add <name> - Vytvoří na serveru novou nástěnku s názvem <name>
-        *  3) board delete <name> - Smaže ze serveru nástěnku s názvem <name> a všechen její obsah
-        *  4) boards list <name> - Vrátí obsah z dané nástěnky se jménem <name> (jeden příspěvek / řádek)
-        *  5) item add <name> <content> - Přidá na nástěnku s názvem <name> příspěvek <content> (Pokud není zadán content, odešle se prázdný)
-        *  6) item delete <name> <id> - Odstraní z nástěnky se jménem <name> příspěvek s číslem (pořadím) <id> (celé kladné číslo > 0)
-        *  7) item update <name> <id> - Aktualizuje na nástěnce se jménem <name> příspěvek s číslem (pořadím) <id> (celé kladné číslo  > 0)
-Omezení : 
+        *  1) boards - Vrátí uživateli seznam všech dostupných nástěnek (1/řádek).
+        *  2) board add <name> - Vytvoří na serveru novou nástěnku s názvem <name>.
+        *  3) board delete <name> - Smaže ze serveru nástěnku s názvem <name> a všechen její obsah.
+        *  4) boards list <name> - Vrátí obsah z dané nástěnky se jménem <name> (jeden příspěvek / řádek).
+        *  5) item add <name> <content> - Přidá na nástěnku s názvem <name> příspěvek <content> (Pokud není zadán content, odešle se prázdný).
+        *  6) item delete <name> <id> - Odstraní z nástěnky se jménem <name> příspěvek s číslem (pořadím) <id> (celé kladné číslo > 0).
+        *  7) item update <name> <id> - Aktualizuje na nástěnce se jménem <name> příspěvek s číslem (pořadím) <id> (celé kladné číslo  > 0).
+Omezení :
     Nezáleží jestli je nejprve zadán hostname a následně číslo portu nebo naopak.
     Pokud chceme mezeru nebo znak nového řádku (/n) ve jméně nástěnky nebo v obsahu příspěvku je třeba toho uvést do dvojitých uvozovek .. " ..."
  Příklad spuštění:
     ./isaclient -H localhost -p 12345 board add nastenkaA
     ./isaclient -H localhost -p 12345 item add nastenkaA \"Toto je viceslovny prispevek\"
     ./isaclient -p 12345 -H localhost item add nastenkaA prispevek1
-    
