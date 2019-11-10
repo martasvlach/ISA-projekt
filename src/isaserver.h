@@ -69,8 +69,7 @@ void RequestResolver(int ClientSocket);
 // Velikost bufferu pro posílání po síťi
 // Velikost "odvozena" z diskuze + je dostatečně velká pro normální rozumné použití aplikace tohoto typu
 // https://stackoverflow.com/questions/2862071/how-large-should-my-recv-buffer-be-when-calling-recv-in-the-socket-library
-
-#define BUFFER_SIZE 16384
+#define BUFFER_SIZE 65536
 
 // Fronta pro příchozí spojení
 #define QUEUE_LEN 5
