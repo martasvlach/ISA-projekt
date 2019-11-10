@@ -35,7 +35,7 @@ void PrintHelp()
    cout << "" << endl;
    cout << "    == Autor ==" << endl;
    cout << "      Martin Vlach [xvlach18@stud.fit.vutbr.cz]" << endl;
-   exit(OK); 
+   exit(OK);
    // Návratový kód po nápovědě je OK
 }
 
@@ -279,7 +279,7 @@ string CreateRequest()
             bufferStream << CONTENT;
             break;
         case UNKNOWN:
-            break;    
+            break;
     }
 
     buffer = bufferStream.str();
@@ -290,7 +290,14 @@ void PrintResponse(string response)
 {
     // Zjištění délky části která se má vypsat na stdout (tělo HTTP)
     regex contentLenRegex ("Content-Length: (\\d+)");
+    regex successRegex ("^(HTTP/1.1 201)|(HTTP/1.1 200)");
     smatch matchesContentLen;
+    smatch matchesSuccess;
+
+    if(regex_search(response,matchesSuccess,successRegex))
+      RETURN_CODE = OK;
+    else
+      RETURN_CODE = FAIL;
 
     if(regex_search(response,matchesContentLen,contentLenRegex))
     {
@@ -303,9 +310,9 @@ void PrintResponse(string response)
             string content;
             string header;
             content = response.substr(response.length() - contentLen);
+            header = response.substr(0,response.length() - contentLen);
             cerr << header; // stderr výpis (HTTP hlavička)
             cout << content; // stdout výpis (HTTP tělo)
-            header = response.substr(0,response.length() - contentLen);
             return; // Vyskočím ven abych na stderr nevypisoval 2x
         }
     }
@@ -362,7 +369,8 @@ int ConnectToServer()
 int main(int argc,char **argv)
 {
     ParseArguments(argc,argv);
-    return ConnectToServer();
+    ConnectToServer();
+    return RETURN_CODE;
 }
 
 /* end isaclient.cpp */

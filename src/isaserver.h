@@ -54,7 +54,7 @@ void IsLegitPortNumber(char *pn);
 // Funkce pro načtění struktury informace o IP adrese nutné pro otevření socketu
 struct addrinfo *LoadAddressInfo();
 
-// Funkce pro kontrolu, že se mi podařilo získat potřebné infomace o adrese 
+// Funkce pro kontrolu, že se mi podařilo získat potřebné infomace o adrese
 void CheckAddressInfo(struct addrinfo *addressInfo);
 
 // Funkce pro nastavení a zapnutí serveru
@@ -67,6 +67,9 @@ int ServerRun(int serverFD);
 void RequestResolver(int ClientSocket);
 
 // Velikost bufferu pro posílání po síťi
+// Velikost "odvozena" z diskuze + je dostatečně velká pro normální rozumné použití aplikace tohoto typu
+// https://stackoverflow.com/questions/2862071/how-large-should-my-recv-buffer-be-when-calling-recv-in-the-socket-library
+
 #define BUFFER_SIZE 16384
 
 // Fronta pro příchozí spojení

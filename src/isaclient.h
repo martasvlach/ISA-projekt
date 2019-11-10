@@ -28,7 +28,6 @@ using namespace std;
  * 7) item update <name> <id> - Aktualizuje na nástěnce se jménem <name> příspěvek s číslem (pořadím) <id>
  */
 
-
 /*
  * Počáteční magická konstanta pro int
  */
@@ -42,6 +41,9 @@ int ID = INT_MAGIC;
 int PORT = INT_MAGIC;
 
 // velikost BUFFERU pro příjem odpovědi od serveru
+// Velikost "odvozena" z diskuze + je dostatečně velká pro normální použití aplikace tohoto typu
+// https://stackoverflow.com/questions/2862071/how-large-should-my-recv-buffer-be-when-calling-recv-in-the-socket-library
+
 #define BUFFER_SIZE 16384
 
 // Uživatelem zadaný HOST
