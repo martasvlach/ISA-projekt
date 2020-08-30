@@ -36,3 +36,7 @@
 # Binaries
 src/isaclient
 src/isaserver
+
+.DS_Store
+**/.DS_Store
+.vscode
